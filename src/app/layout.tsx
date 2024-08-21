@@ -7,8 +7,8 @@ import { theme } from '@/styles/theme'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Implementando CI/CD com Docker/Kubernetes e ArgoCd',
-  description: 'Implementando CI/CD com Docker/Kubernetes e ArgoCd'
+  title: 'Web Dashgo',
+  description: 'Web Dashgo'
 }
 
 export default function RootLayout({
