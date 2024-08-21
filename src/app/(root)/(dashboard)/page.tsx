@@ -1,8 +1,11 @@
+import { Header } from '@/components/header'
+
 const DashboardPage = () => {
   return (
-    <div>
-      <div>DashboardPage</div>
-    </div>
+    <>
+      <Header title="Dashboard" />
+      <div className="p-4">Dashboardpage</div>
+    </>
   )
 }
 
