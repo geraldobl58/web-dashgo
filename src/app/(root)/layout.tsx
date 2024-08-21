@@ -8,7 +8,7 @@ const MarketingLayout = ({ children }: Props) => {
   return (
     <div className="flex w-full h-full">
       <Sidebar />
-      {children}
+      <div className="flex-1">{children}</div>
     </div>
   )
 }
