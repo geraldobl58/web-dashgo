@@ -1,191 +1,98 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-
-import Image from 'next/image'
-
-import {
-  Autocomplete,
-  Button,
-  Checkbox,
-  Chip,
-  Container,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
-  InputLabel,
-  MenuItem,
-  Radio,
-  RadioGroup,
-  Select,
-  TextField
-} from '@mui/material'
-
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
-
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 import * as yup from 'yup'
 
-const columns: GridColDef[] = [
-  { field: 'id', headerName: 'ID' },
-  { field: 'order_id', headerName: 'ID Pedido' },
-  { field: 'partner_order_id', headerName: 'ID Pedido Parceiro' },
-  { field: 'cpf_cnpj', headerName: 'CPF ou CNPJ' },
-  {
-    field: 'bussinness_id',
-    headerName: 'Bandeira',
-    renderCell: (params) => {
-      return (
-        <div className="mt-4">
-          <Image
-            alt="Icon"
-            width={25}
-            height={25}
-            src={params.row.bussinness_id}
-          />
-        </div>
-      )
-    }
-  },
-  { field: 'purchase_date', headerName: 'Data Compra' },
-  {
-    field: 'points_to_credit',
-    headerName: 'Ponto a Creditar'
-  },
-  {
-    field: 'expected_credit_date',
-    headerName: 'Data Prevista de Crédito'
-  },
-  {
-    field: 'details',
-    headerName: 'Detalhes',
-    width: 150,
-    renderCell: () => (
-      <>
-        <Button variant="text" size="small" sx={{ fontSize: 10 }}>
-          Ver detalhes
-        </Button>
-      </>
-    )
-  }
-]
+import axios from 'axios'
 
-const schema = yup.object().shape({
-  orderIds: yup.number(),
-  businessUnitIds: yup.number()
-})
-
-interface OrdersFilters {
-  id: number
-  businessUnitIds: string
-  orderIds: string
-  orderId: number
-  partnerOrderId: string
-  cpfCnpj: string
-  flag: number
-  date: Date
-  deadlineShippingPointsAccum: number
-  expectedDateAccum: null | string | Date
-}
+import { Autocomplete, Button, TextField } from '@mui/material'
+import { DataGrid } from '@mui/x-data-grid'
 
 import { Header } from '@/components/header'
 
-import { api } from '@/lib/api'
+import { columns } from './components'
+
+const schema = yup.object().shape({
+  title: yup.string().required('Campo obrigário'),
+  category: yup.string().required('Campo obrigário')
+})
+
+interface OrdersFilters {
+  title: string
+  category: string
+}
+
+interface OrdersData {
+  id: number
+  title: string
+  category: string
+}
 
 const OrdersPage = () => {
-  const [filters, setFilters] = useState<OrdersFilters[]>([])
-  const [dataOrdersIds, setDataOrdersIds] = useState([])
-
-  console.log(filters)
+  const [orders, setOrders] = useState<OrdersData[]>([])
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 10
+  })
+  const [totalOrders, setTotalOrders] = useState(0)
 
   const {
     handleSubmit,
     control,
-    formState: { errors }
+    formState: { errors },
+    reset
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      orderIds: undefined,
-      businessUnitIds: undefined
+      title: '',
+      category: ''
     }
   })
 
   useEffect(() => {
-    const fetchData = async () => {
+    async function getAll() {
       try {
-        const response = await api.get('/api/orders')
-        setFilters(response.data.data)
-        setDataOrdersIds(response.data.data)
+        const response = await axios.get(`/api/orders`, {
+          params: {
+            page: paginationModel.page + 1,
+            pageSize: paginationModel.pageSize
+          }
+        })
+        setOrders(response.data.data)
+        setTotalOrders(response.data.total)
       } catch (error) {
-        console.log(error)
+        console.error('Error fetching orders:', error)
       }
     }
-    fetchData()
-  }, [])
+    getAll()
+  }, [paginationModel])
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: OrdersFilters) => {
     try {
-      const response = await api.get('/api/orders', {
+      const response = await axios.get('/api/orders', {
         params: {
-          order_id: data.orderIds,
-          bussinness_id: data.businessUnitIds
+          title: data.title,
+          category: data.category,
+          page: paginationModel.page + 1,
+          pageSize: paginationModel.pageSize
         }
       })
-      setFilters(response.data.data)
+      setOrders(response.data.data)
+      setTotalOrders(response.data.total)
     } catch (error) {
       console.log(error)
     }
   }
 
-  const flags = [
-    {
-      label: 'Casas Bahia',
-      value: 1,
-      img: '/icons/casas-bahia.png'
-    },
-    {
-      label: 'Ponto Frio',
-      value: 2,
-      img: '/icons/ponto-frio.png'
-    },
-    {
-      label: 'Extra',
-      value: 3,
-      img: '/icons/extra.png'
-    }
-  ]
-
-  const options = [
-    { label: 'ID Pedido', value: 'Pedido Via' },
-    { label: 'ID Pedido Parceiro', value: 'Pedido Parceiro' },
-    { label: 'ID Pedido MarketPlace', value: 'Pedido MarketPlace' }
-  ]
-
-  const getBandeira = (flag: number) => {
-    switch (flag) {
-      case 11:
-        return '/icons/casas-bahia.png'
-      case 2:
-        return '/icons/ponto-frio.png'
-      default:
-        return '/icons/extra.png'
-    }
+  const handleReset = () => {
+    reset()
+    setOrders([])
+    setTotalOrders(0)
+    setPaginationModel({ page: 0, pageSize: 10 })
   }
-
-  const formattedFilters = filters.map((filter) => ({
-    orderId: filter.orderId,
-    partnerOrderId: filter.partnerOrderId,
-    cpfCnpj: filter.orderClients?.map((client) => client.cpfCnpj) ?? [],
-    bandeira: getBandeira(filter.flag),
-    dataCompra: filter.date,
-    deadlineShippingPointsAccum:
-      filter.deadlineShippingPointsAccum === 0
-        ? 'Sem Pontos'
-        : filter.deadlineShippingPointsAccum,
-    expectedDateAccum: filter.expectedDateAccum ?? 'Não informado'
-  }))
 
   return (
     <>
@@ -193,18 +100,22 @@ const OrdersPage = () => {
       <div className="pl-4 pr-4">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-8">
           <div className="grid grid-cols-4 gap-4">
-            {/* <FormControl fullWidth>
-              <InputLabel>Tipo de Consulta</InputLabel>
-              <Select label="Tipo">
-                {options.map((item) => (
-                  <MenuItem key={item.value} value={item.value}>
-                    {item.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl> */}
             <Controller
-              name="orderIds"
+              name="title"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  value={field.value}
+                  onChange={field.onChange}
+                  label="Produto"
+                  error={!!errors.title}
+                  helperText={errors.title && errors.title.message}
+                />
+              )}
+            />
+
+            <Controller
+              name="category"
               control={control}
               render={({ field }) => (
                 <Autocomplete
@@ -214,59 +125,43 @@ const OrdersPage = () => {
                   onChange={(event, newValue) => {
                     field.onChange(newValue)
                   }}
-                  options={dataOrdersIds.map((item) => item.order_id)}
+                  options={orders
+                    .map((item) => item.category)
+                    .filter(
+                      (value, index, self) => self.indexOf(value) === index
+                    )}
                   renderInput={(params) => (
-                    <TextField {...params} label="Id Pedido" />
+                    <TextField
+                      {...params}
+                      label="Departamento"
+                      error={!!errors.category}
+                      helperText={errors.category && errors.category.message}
+                    />
                   )}
                 />
               )}
             />
 
-            <div className="flex items-center justify-center">
-              {flags.map((item) => (
-                <div key={item.label}>
-                  <Controller
-                    name="businessUnitIds"
-                    control={control}
-                    render={({ field }) => (
-                      <FormControl>
-                        <RadioGroup
-                          value={field.value}
-                          onChange={field.onChange}
-                        >
-                          <FormControlLabel
-                            control={<Radio />}
-                            value={item.value}
-                            label={item.label}
-                          />
-                        </RadioGroup>
-                      </FormControl>
-                    )}
-                  />
-                </div>
-              ))}
-              {errors.businessUnitIds && (
-                <span>{errors.businessUnitIds.message}</span>
-              )}
-            </div>
             <Button type="submit" variant="contained">
               Consultar Pedido
+            </Button>
+            <Button type="button" variant="outlined" onClick={handleReset}>
+              Resetar
             </Button>
           </div>
         </form>
 
         <div className="mt-8">
           <DataGrid
-            getRowId={(row) => console.log(row)}
-            rows={formattedFilters}
+            rows={orders}
             columns={columns}
-            initialState={{
-              pagination: {
-                paginationModel: { page: 0, pageSize: 5 }
-              }
-            }}
-            pageSizeOptions={[5, 10]}
-            rowSelection={false}
+            rowCount={totalOrders}
+            pagination
+            paginationMode="server"
+            paginationModel={paginationModel}
+            onPaginationModelChange={(model) => setPaginationModel(model)}
+            pageSizeOptions={[5, 10, 25]}
+            disableRowSelectionOnClick
           />
         </div>
       </div>
