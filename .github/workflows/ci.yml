@@ -22,6 +22,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Install Prisma
+        run: npx prisma generate
+
       - name: Build
         run: npm run build
 
@@ -43,7 +46,7 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
           cd k8s
-          kustomize edit set image gitops=$DOCKER_USERNAME/gitops:$GITHUB_SHA
+          kustomize edit set image web-dashgo=$DOCKER_USERNAME/web-dashgo:$GITHUB_SHA
 
       - name: Git Commit
         run: |
