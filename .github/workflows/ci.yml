@@ -20,7 +20,18 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm install
+          npx prisma migrate deploy
+      - name: 'Start server & test API routes'
+        run: |
+          npm run dev &
+          pid=$!
+
+          sleep 15
+          # check api routes
+          curl --fail 'http://localhost:3000/api'
+          kill "$pid"
 
       - name: Build
         run: npm run build
