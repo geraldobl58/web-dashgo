@@ -30,7 +30,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-          repository: ${{ secrets.DOCKER_USERNAME }}/gitops
+          repository: ${{ secrets.DOCKER_USERNAME }}/web-dashgo
           tags: ${{ github.sha }}, latest
 
       - name: Setup Kustomize
@@ -55,4 +55,4 @@ jobs:
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          repository: geraldobl58/build-form
+          repository: geraldobl58/web-dashgo

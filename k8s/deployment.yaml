@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gitops
+  name: web-dashgo
 spec:
   selector:
     matchLabels:
-      app: gitops
+      app: web-dashgo
   template:
     metadata:
       labels:
-        app: gitops
+        app: web-dashgo
     spec:
       containers:
-      - name: gitops
-        image: gitops
+      - name: web-dashgo
+        image: web-dashgo
         ports:
         - containerPort: 3000
