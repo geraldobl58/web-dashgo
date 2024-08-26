@@ -5,6 +5,6 @@ resources:
 - deployment.yaml
 - services.yaml
 images:
-- name: gitops
-  newName: geraldobl58/gitops
+- name: web-dashgo
+  newName: geraldobl58/web-dashgo
   newTag: b87c789c4b6eb4d14ff0fc45b3731f7c5af8c3fb
