@@ -36,7 +36,7 @@ export const Navigation = ({
       icon: <DollarSignIcon />,
       label: 'Pedidos',
       href: `/orders`,
-      active: pathname === `/pedidos` || pathname === `/pedidos/novo`
+      active: pathname === `/orders` || pathname === `/orders/novo`
     },
     {
       icon: <Building2Icon />,
