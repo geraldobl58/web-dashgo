@@ -46,14 +46,14 @@ export const CellAction = ({ data }: CellActionProps) => {
         onConfirm={handleDelete}
         isLoading={isLoading}
       />
-      <IconButton onClick={handleClickOpen}>
-        <DeleteIcon />
+      <IconButton onClick={() => router.push(`/orders/single/${data.id}`)}>
+        <VisibilityIcon />
       </IconButton>
       <IconButton onClick={() => router.push(`/orders/${data.id}`)}>
         <EditIcon />
       </IconButton>
-      <IconButton onClick={() => router.push(`/orders/single/${data.id}`)}>
-        <VisibilityIcon />
+      <IconButton onClick={handleClickOpen}>
+        <DeleteIcon />
       </IconButton>
     </>
   )
