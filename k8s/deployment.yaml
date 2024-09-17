@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-dashgo
+spec:
+  selector:
+    matchLabels:
+      app: web-dashgo
+  template:
+    metadata:
+      labels:
+        app: web-dashgo
+    spec:
+      containers:
+      - name: web-dashgo
+        image: web-dashgo
+        ports:
+        - containerPort: 3000

@@ -5,7 +5,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
 import { yupResolver } from '@hookform/resolvers/yup'
 import axios from 'axios'
-import { Autocomplete, Button, TextField } from '@mui/material'
+import { Autocomplete, Button, LinearProgress, TextField } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 
 import { Header } from '@/components/header'
@@ -139,18 +139,22 @@ const OrdersPage = () => {
         </form>
 
         <div className="mt-8">
-          <DataGrid
-            rows={orders}
-            columns={columns}
-            rowCount={totalOrders}
-            pagination
-            paginationMode="server"
-            paginationModel={paginationModel}
-            onPaginationModelChange={setPaginationModel}
-            pageSizeOptions={[5, 10]}
-            disableRowSelectionOnClick
-            loading={isLoading}
-          />
+          {isLoading ? (
+            <LinearProgress />
+          ) : (
+            <DataGrid
+              rows={orders}
+              columns={columns}
+              rowCount={totalOrders}
+              pagination
+              paginationMode="server"
+              paginationModel={paginationModel}
+              onPaginationModelChange={setPaginationModel}
+              pageSizeOptions={[5, 10]}
+              disableRowSelectionOnClick
+              loading={isLoading}
+            />
+          )}
         </div>
       </div>
     </>
